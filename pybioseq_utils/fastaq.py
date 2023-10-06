@@ -37,4 +37,8 @@ def quality_filtering(quality_seq: str, quality_threshold: Union[int, float]) ->
     Reads with average score lower than this cutoff will be dropped
     :return: is seq passed cutoff (bool)
     """
-    pass
+    scores_list = []
+    for quality_base in quality_seq:
+        scores_list.append(ord(quality_base) - 33)
+    return sum(scores_list) / len(scores_list) >= quality_threshold
+
