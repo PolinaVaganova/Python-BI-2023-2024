@@ -38,6 +38,6 @@ def quality_filtering(quality_seq: str, quality_threshold: Union[int, float]) ->
     :return: is seq passed cutoff (bool)
     """
     scores_list = []
-    for quality_base in quality_seq:
-        scores_list.append(ord(quality_base) - 33)
+    for quality_symbol in quality_seq:
+        scores_list.append(ord(quality_symbol) - 33)
     return sum(scores_list) / len(scores_list) >= quality_threshold
