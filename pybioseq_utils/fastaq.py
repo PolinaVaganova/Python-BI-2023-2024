@@ -1,4 +1,4 @@
-from typing import Union, List
+from typing import Union
 
 
 def gc_filtering(seq: str, gc_bounds: Union[tuple, float, int]) -> bool:
@@ -15,7 +15,7 @@ def gc_filtering(seq: str, gc_bounds: Union[tuple, float, int]) -> bool:
     return gc_percent <= gc_bounds
 
 
-def length_filtering(seq: str, length_bounds: tuple) -> bool:
+def length_filtering(seq: str, length_bounds: Union[tuple, float, int]) -> bool:
     """
     Filter seq by its length in nucleic bases.
     :param seq: dna sequence
@@ -25,11 +25,10 @@ def length_filtering(seq: str, length_bounds: tuple) -> bool:
     """
     if type(length_bounds) == tuple:
         return length_bounds[0] <= len(seq) <= length_bounds[1]
-    return len(seq) <= length_bounds[1]
+    return len(seq) <= length_bounds
 
 
-
-def quality_filtering(quality_seq: str, quality_threshold: int) -> bool:
+def quality_filtering(quality_seq: str, quality_threshold: Union[int, float]) -> bool:
     """
     Filter seq by its quality in phred33 scale.
     Reads with average score lower than cutoff will be dropped.
