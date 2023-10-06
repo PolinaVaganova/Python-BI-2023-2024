@@ -1,4 +1,7 @@
-def gc_filtering(seq: str, gc_bounds: tuple) -> bool:
+from typing import Union, Sequence, List
+
+
+def gc_filtering(seq: str, gc_bounds: Union[tuple, float, int]) -> bool:
     """
     Filtering seq by GC content in percentages.
     :param seq: dna sequence
@@ -6,7 +9,12 @@ def gc_filtering(seq: str, gc_bounds: tuple) -> bool:
     or just upper limit (then pass float). Default=(0,100)
     :return: is seq in allowed zone (bool)
     """
-    pass
+    gc_percent = (seq.count('C') + seq.count('G')) / len(seq) * 100
+    if type(gc_bounds) == tuple:
+        return gc_percent < gc_bounds[0] or gc_percent > gc_bounds[1]
+    else:
+        return gc_percent < gc_bounds
+
 
 
 def length_filtering(seq: str, length_bounds: tuple) -> bool:
@@ -30,3 +38,6 @@ def quality_filtering(quality_seq: str, quality_threshold: int) -> bool:
     :return: is seq passed cutoff (bool)
     """
     pass
+
+
+print(gc_filtering('GCGCGCGC', 20))
