@@ -1,4 +1,4 @@
-from typing import Union, Sequence, List
+from typing import Union, List
 
 
 def gc_filtering(seq: str, gc_bounds: Union[tuple, float, int]) -> bool:
@@ -23,7 +23,10 @@ def length_filtering(seq: str, length_bounds: tuple) -> bool:
     or just upper limit (float)
     :return: is seq in allowed zone (bool)
     """
-    pass
+    if type(length_bounds) == tuple:
+        return length_bounds[0] <= len(seq) <= length_bounds[1]
+    return len(seq) <= length_bounds[1]
+
 
 
 def quality_filtering(quality_seq: str, quality_threshold: int) -> bool:
