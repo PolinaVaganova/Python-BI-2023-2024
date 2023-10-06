@@ -11,10 +11,8 @@ def gc_filtering(seq: str, gc_bounds: Union[tuple, float, int]) -> bool:
     """
     gc_percent = (seq.count('C') + seq.count('G')) / len(seq) * 100
     if type(gc_bounds) == tuple:
-        return gc_percent < gc_bounds[0] or gc_percent > gc_bounds[1]
-    else:
-        return gc_percent < gc_bounds
-
+        return gc_bounds[0] <= gc_percent <= gc_bounds[1]
+    return gc_percent <= gc_bounds
 
 
 def length_filtering(seq: str, length_bounds: tuple) -> bool:
@@ -38,6 +36,3 @@ def quality_filtering(quality_seq: str, quality_threshold: int) -> bool:
     :return: is seq passed cutoff (bool)
     """
     pass
-
-
-print(gc_filtering('GCGCGCGC', 20))
