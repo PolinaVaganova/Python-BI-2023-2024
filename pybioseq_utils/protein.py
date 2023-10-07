@@ -93,13 +93,25 @@ def change_residues_encoding(seq: str, current_encoding: str) -> str:
     return ''.join(seq_in_target_encoding)
 
 
-def is_protein(seq: str) -> bool:
+def is_protein(seq: str, current_encoding: str) -> bool:
     """
     Check if sequence is protein or not by identify invalid seq elements, which are not presented in dicts above.
-    :param seq: protein seq in 1-letter encoding (str)
+    :param seq: protein seq (str)
+    :param current_encoding: specify current encoding (str)
     :return: if seq is correct protein seq or not (bool)
     """
-    pass
+    temp_seq = seq.replace(' ', '')
+    if current_encoding == 'one':
+        for residue in temp_seq:
+            if residue.upper() not in RESIDUES_NAMES.values():
+                return False
+        return True
+    if current_encoding == 'three':
+        for residue_start_idx in range(0, len(temp_seq) - 2, 3):
+            residue = temp_seq[residue_start_idx:residue_start_idx + 3]
+            if residue.upper() not in RESIDUES_NAMES.values():
+                return False
+        return True
 
 
 def get_seq_characteristic(seq: str) -> dict:
