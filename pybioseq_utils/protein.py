@@ -84,8 +84,8 @@ def change_residues_encoding(seq: str, current_encoding: str) -> str:
             seq_in_target_encoding.append(RESIDUES_NAMES[residue.upper()])
     elif current_encoding == 'one':
         for residue in temp_seq:
-            seq_in_target_encoding.append(''.join([target_residue for target_residue in RESIDUES_NAMES if
-                                                   RESIDUES_NAMES[target_residue] == residue.upper()]))
+            seq_in_target_encoding.append([target_residue for target_residue in RESIDUES_NAMES if
+                                           RESIDUES_NAMES[target_residue] == residue.upper()][0])
             seq_in_target_encoding.append(' ')
     else:
         raise ValueError("Please, specify current encoding of your sequences as 'one' or 'three'")
@@ -116,11 +116,15 @@ def is_protein(seq: str, current_encoding: str) -> bool:
 
 def get_seq_characteristic(seq: str) -> dict:
     """
-    Count entry of each residue type in your seq. Get description of amino acid composition.
+    Count entry of each residue type in your seq. Get description of amino acid composition in dict format.
     :param seq: protein seq in 1-letter encoding (str)
     :return: each residue type in seq in 3-letter code and its amount in current seq (dict)
     """
-    pass
+    res_count = {}
+    for residue in set(seq):
+        residue_entry = seq.count(residue)
+        res_count[[tl_code for tl_code in RESIDUES_NAMES if RESIDUES_NAMES[tl_code] == residue][0]] = residue_entry
+    return res_count
 
 
 def find_res(seq: str, res_of_interest: str) -> str:
