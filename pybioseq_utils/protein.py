@@ -68,15 +68,29 @@ AMINO_ACID_TO_MRNA = {'A': 'GCN',
                       'V': 'GUN'}
 
 
-def change_residues_encoding(seq: str, query: str = 'one') -> str:
+def change_residues_encoding(seq: str, current_encoding: str) -> str:
     """
     Transfer amino acids from 3-letter to 1-letter code and vice versa. By default, converts all seq into 1-letter
-    format, even those already 1-letter. Case-sensitive.
+    format, even those already 1-letter. Case-insensitive.
     :param seq: protein seq (str)
-    :param query: specify target encoding (str)
+    :param current_encoding: specify current encoding (str)
     :return: same protein seq in another encoding (str)
     """
-    pass
+    seq_in_target_encoding = []
+    temp_seq = seq.replace(' ', '')
+    if current_encoding == 'three':
+        for residue_start_idx in range(0, len(temp_seq) - 2, 3):
+            residue = temp_seq[residue_start_idx:residue_start_idx + 3]
+            seq_in_target_encoding.append(RESIDUES_NAMES[residue.upper()])
+    elif current_encoding == 'one':
+        for residue in temp_seq:
+            seq_in_target_encoding.append(''.join([target_residue for target_residue in RESIDUES_NAMES if
+                                                   RESIDUES_NAMES[target_residue] == residue.upper()]))
+            seq_in_target_encoding.append(' ')
+    else:
+        raise ValueError("Please, specify current encoding of your sequences as 'one' or 'three'")
+
+    return ''.join(seq_in_target_encoding)
 
 
 def is_protein(seq: str) -> bool:
