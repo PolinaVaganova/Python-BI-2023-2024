@@ -206,7 +206,20 @@ def calculate_isoelectric_point(seq: str) -> float:
     :param seq: protein seq in 1-letter encoding (str)
     :return: isoelectric point (float)
     """
-    pass
+    sum_pka = 0
+    pka_amount = 0
+    for ind, res in enumerate(seq.upper(), 1):
+        if ind == 1:
+            sum_pka += RESIDUES_CHARACTERISTICS[res][1][1]
+            pka_amount += 1
+        elif RESIDUES_CHARACTERISTICS[res][1][2] != 0:
+            sum_pka += RESIDUES_CHARACTERISTICS[res][1][2]
+            pka_amount += 1
+        elif ind == len(seq):
+            sum_pka += RESIDUES_CHARACTERISTICS[res][1][0]
+            pka_amount += 1
+    pi = sum_pka / pka_amount
+    return pi
 
 
 def analyze_secondary_structure(seq: str) -> list[str]:
@@ -216,4 +229,3 @@ def analyze_secondary_structure(seq: str) -> list[str]:
     :param seq: protein seq in 1-letter encoding (str)
     :return: percentage of amino acids belonging to three types of secondary structure (list[str])
     """
-    pass
