@@ -131,12 +131,10 @@ def find_residue_position(seq: str, res_of_interest: str) -> str:
     """
     Find all positions of certain residue in your seq
     :param seq: protein seq in 1-letter encoding (str)
-    :param res_of_interest: specify the residue of interest in 3-letter or 1-letter encoding (str)
+    :param res_of_interest: specify the residue of interest in 1-letter encoding (str)
     :return: positions of specified residue in your seq (str)
     """
     res_of_interest = res_of_interest.upper()
-    if len(res_of_interest) == 3:
-        res_of_interest = RESIDUES_NAMES[res_of_interest]
     res_of_interest_positions = []
     for ind, res in enumerate(seq, 1):
         if res == res_of_interest:
@@ -148,10 +146,22 @@ def find_site(seq: str, site: str) -> str:
     """
     Find if seq contains certain site and get positions of its site
     :param seq: protein seq in 1-letter encoding (str)
-    :param site: specify site of interest (str)
+    :param site: specify site of interest in 1-letter encoding (str)
     :return: positions of residues for each certain site in seq (str)
     """
-    pass
+    site = site.upper()
+    if not is_protein(site, current_encoding='one'):
+        return f'Site {site} is not a protein!'
+    if site in seq:
+        site_full_position = []
+        site_count = seq.count(site)
+        site_start_position = [(coordinate + 1) for coordinate in range(len(seq)) if seq.startswith(site, coordinate)]
+        site_end_position = [(coordinate + len(site) - 1) for coordinate in site_start_position]
+        for idx in range(len(site_start_position)):
+            site_full_position.append(f'{site_start_position[idx]}:{site_end_position[idx]}')
+        return f"Site entry in sequence = {site_count}. Site residues can be found at positions: {', '.join(site_full_position)}"
+    else:
+        return f"{site} site is not in sequence!"
 
 
 def calculate_protein_mass(seq: str) -> float:
