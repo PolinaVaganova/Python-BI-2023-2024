@@ -70,7 +70,7 @@ def reverse(seq: str) -> str:
     :return:
     - str: reverse seq
     """
-    pass
+    return seq[::-1]
 
 
 # function for getting a complementary sequence for dna or rna
