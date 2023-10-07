@@ -123,7 +123,8 @@ def get_seq_characteristic(seq: str) -> dict:
     res_count = {}
     for residue in set(seq):
         residue_entry = seq.count(residue)
-        res_count[[tl_code for tl_code in RESIDUES_NAMES if RESIDUES_NAMES[tl_code] == residue][0]] = residue_entry
+        res_count[[three_letter_residue for three_letter_residue in RESIDUES_NAMES if
+                   RESIDUES_NAMES[three_letter_residue] == residue][0]] = residue_entry
     return res_count
 
 
