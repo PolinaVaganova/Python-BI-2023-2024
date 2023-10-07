@@ -109,7 +109,7 @@ def is_protein(seq: str, current_encoding: str) -> bool:
     if current_encoding == 'three':
         for residue_start_idx in range(0, len(temp_seq) - 2, 3):
             residue = temp_seq[residue_start_idx:residue_start_idx + 3]
-            if residue.upper() not in RESIDUES_NAMES.values():
+            if residue.upper() not in RESIDUES_NAMES.keys():
                 return False
         return True
 
