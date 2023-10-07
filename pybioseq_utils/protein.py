@@ -194,7 +194,10 @@ def get_mrna(seq: str) -> str:
     :param seq: protein seq in 1-letter encoding (str)
     :return: potential encoding mRNA sequence with multiple choice for some positions (str)
     """
-    pass
+    mrna_seq = str()
+    for res in seq.upper():
+        mrna_seq += AMINO_ACID_TO_MRNA[res]
+    return mrna_seq
 
 
 def calculate_isoelectric_point(seq: str) -> float:
