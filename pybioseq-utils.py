@@ -22,12 +22,15 @@ def run_nucleic_seq_processing(*args: str) -> Union[List[Sequence], Sequence]:
 # main function for nucleic seqs processing
 def run_protein_seq_processing(*args: str) -> Union[List[str], str, float, List[float]]:
     """
-    Specify and launch operation with proteins sequences.
+    Specify and launch operation with proteins sequences. Parameters must be passed exactly in order given below
 
     :param args:
-    - seq (str): amino acids sequences for analysis in 1-letter or 3-letter code
-    Any number and cases. Whitespaces might be only between every residue name (every 3 or 1 letter, depend on encoding)
-    - additional arg (str): necessary parameter for certain functions (for example, specify target protein site)
+    - seq (str): amino acids sequences for analysis in 1-letter or 3-letter code (all encodings must be the same)
+    Any number of sequences in any cases acceptable.
+    Residues names may be separated by whitespaces (every 3 or 1 letter, depend on encoding).
+    - additional arg (str): necessary parameter for some functions (for example, specify target protein site)
+    - current_encoding (str): specify current encoding of your sequences as 'one' or 'three' corresponding to the length
+    of residues names
     - operation name (str): specify procedure you want to apply
 
     :return: the result of procedure in list, str or float format
