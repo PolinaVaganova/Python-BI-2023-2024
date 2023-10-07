@@ -135,7 +135,7 @@ def count_nucleotides(seq: str) -> dict:
     return content
 
 
-def make_triplets(seq: str) -> list:
+def make_triplets(seq: str) -> List[str]:
     """
     Split your seq into triplets
 
@@ -145,7 +145,11 @@ def make_triplets(seq: str) -> list:
     :return:
     - List[str]: created triplets
     """
-    pass
+    triplets = []
+    for ind in range(0, len(seq) - 2):
+        triplet = seq[ind:ind + 4]
+        triplets.append(triplet)
+    return triplets
 
 
 # function for check a sequence correctness
