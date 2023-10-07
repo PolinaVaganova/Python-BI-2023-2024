@@ -163,4 +163,9 @@ def is_dna_or_rna(seq: str) -> bool:
     :return:
     - bool: the result of the check
     """
-    pass
+    for nucleotide in seq:
+        if nucleotide.upper() not in NUCLEOTIDE_NAMES:
+            return False
+    if 'U' in seq.upper() and 'T' in seq.upper():
+        return False
+    return True
