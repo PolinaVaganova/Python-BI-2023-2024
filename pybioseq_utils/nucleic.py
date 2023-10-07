@@ -115,17 +115,24 @@ def reverse_complement(seq: str) -> str:
 
 
 # function for count nucleotides in seq
-def count_nucleotides(seq: str) -> str:
+def count_nucleotides(seq: str) -> dict:
     """
-    Characterize percentages of each type of nucleotide
+    Find amount of each type of nucleotide in seq
 
     :param seq:
     - seq (str): dna or rna seq
 
     :return:
-    - str: each nucleotide with it percentage weight
+    - dict: each nucleotide with it entry number
     """
-    pass
+    content = {'A': 0,
+               'T': 0,
+               'C': 0,
+               'G': 0,
+               'U': 0}
+    for nucleotide in seq:
+        content[nucleotide.upper()] += 1
+    return content
 
 
 def make_triplets(seq: str) -> list:
