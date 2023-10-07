@@ -120,12 +120,12 @@ def get_seq_characteristic(seq: str) -> dict:
     :param seq: protein seq in 1-letter encoding (str)
     :return: each residue type in seq in 3-letter code and its amount in current seq (dict)
     """
-    res_count = {}
+    residue_count = {}
     for residue in set(seq):
         residue_entry = seq.count(residue)
-        res_count[[three_letter_residue for three_letter_residue in RESIDUES_NAMES if
-                   RESIDUES_NAMES[three_letter_residue] == residue][0]] = residue_entry
-    return res_count
+        residue_count[[three_letter_residue for three_letter_residue in RESIDUES_NAMES if
+                       RESIDUES_NAMES[three_letter_residue] == residue][0]] = residue_entry
+    return residue_count
 
 
 def find_residue_position(seq: str, res_of_interest: str) -> str:
