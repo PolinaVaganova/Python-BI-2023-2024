@@ -170,7 +170,10 @@ def calculate_protein_mass(seq: str) -> float:
     :param seq: protein seq in 1-letter encoding (str)
     :return: mass in Da (float)
     """
-    pass
+    total_mass = 0
+    for res in seq.upper():
+        total_mass += RESIDUES_CHARACTERISTICS[res][2]
+    return total_mass
 
 
 def calculate_average_hydrophobicity(seq: str) -> float:
