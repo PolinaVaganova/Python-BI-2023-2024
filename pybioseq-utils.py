@@ -1,7 +1,7 @@
 from typing import Union, Sequence, List
-import pybioseq_utils.fastaq as fastaqt
+import pybioseq_utils.fastaq as fastaqtutil
 import pybioseq_utils.nucleic
-import pybioseq_utils.protein
+import pybioseq_utils.protein as protutil
 
 
 # main function for nucleic seqs processing
@@ -20,7 +20,7 @@ def run_nucleic_seq_processing(*args: str) -> Union[List[Sequence], Sequence]:
 
 
 # main function for nucleic seqs processing
-def run_protein_seq_processing(*args: str) -> Union[List[str], str, float, List[float]]:
+def run_protein_seq_processing(*args: str) -> Union[List[str], str, float, List[float], dict, List[dict]]:
     """
     Specify and launch operation with proteins sequences. Parameters must be passed exactly in order given below
 
@@ -35,7 +35,46 @@ def run_protein_seq_processing(*args: str) -> Union[List[str], str, float, List[
 
     :return: the result of procedure in list, str or float format
     """
-    pass
+    # first value is function name, second is real function, third is number of function additional arguments
+    function_names = {'change_residues_encoding': [protutil.change_residues_encoding, 1],
+                      'is_protein': [protutil.is_protein, 1],
+                      'get_seq_characteristic': [protutil.get_seq_characteristic, 1],
+                      'find_residue_position': [protutil.find_residue_position, 2],
+                      'find_site': [protutil.find_site, 2],
+                      'calculate_protein_mass': [protutil.calculate_protein_mass, 1],
+                      'calculate_average_hydrophobicity': [protutil.calculate_average_hydrophobicity, 1],
+                      'get_mrna': [protutil.get_mrna, 1],
+                      'calculate_isoelectric_point': [protutil.calculate_isoelectric_point, 1],
+                      'analyze_secondary_structure': [protutil.analyze_secondary_structure, 1]}
+
+    # parse arguments
+    procedure = args[-1]
+    if function_names[procedure][1] == 1:
+        current_encoding = args[-2]
+    else:
+        current_encoding = args[-3]
+    seqs = [seq for seq in args[:-1 - (function_names[procedure][1])]]
+    # create list for output
+    processed_result = []
+    # prepare sequence and launch desired operation
+    for idx, seq in enumerate(seqs):
+        if not protutil.is_protein(seq, current_encoding=current_encoding):
+            print(f'Sequence number {idx + 1} is not available for operations! Skip it.')
+            processed_result.append(f'Sequence number {idx + 1} is not available for operations! Skip it.')
+            continue
+        if current_encoding != 'one':
+            seq = protutil.change_residues_encoding(seq, current_encoding=current_encoding)
+        if function_names[procedure][1] == 1:
+            if procedure == 'change_residues_encoding' or procedure == 'is_protein':
+                processed_result.append(function_names[procedure][0](seq, current_encoding=current_encoding))
+            else:
+                processed_result.append(function_names[procedure][0](seq))
+        elif function_names[procedure][1] == 2:
+            add_arg = args[-2]
+            processed_result.append(function_names[procedure][0](seq, add_arg))
+    if len(processed_result) == 1:
+        return processed_result[0]
+    return processed_result
 
 
 # main function for fastaq seqs filtering
@@ -57,11 +96,9 @@ def run_fastaq_filtering(seqs: dict, gc_bounds: Union[tuple, float, int] = (0, 1
     """
     filtered_seqs = dict()
     for seq_name in seqs:
-        gc_result = fastaqt.gc_filtering(seqs[seq_name][0], gc_bounds)
-        length_result = fastaqt.length_filtering(seqs[seq_name][0], length_bounds)
-        quality_result = fastaqt.quality_filtering(seqs[seq_name][1], quality_threshold)
+        gc_result = fastaqtutil.gc_filtering(seqs[seq_name][0], gc_bounds)
+        length_result = fastaqtutil.length_filtering(seqs[seq_name][0], length_bounds)
+        quality_result = fastaqtutil.quality_filtering(seqs[seq_name][1], quality_threshold)
         if gc_result and length_result and quality_result:
             filtered_seqs[seq_name] = seqs[seq_name]
     return filtered_seqs
-
-
