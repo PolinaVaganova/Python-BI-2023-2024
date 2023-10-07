@@ -1,6 +1,6 @@
 from typing import Union, Sequence, List
 import pybioseq_utils.fastaq as fastaqtutil
-import pybioseq_utils.nucleic
+import pybioseq_utils.nucleic as nuclutil
 import pybioseq_utils.protein as protutil
 
 
@@ -16,7 +16,24 @@ def run_nucleic_seq_processing(*args: str) -> Union[List[Sequence], Sequence]:
     :return:
     - str: the result of procedure (case-sensitive)
     """
-    pass
+    function_names = {'transcribe': nuclutil.transcribe,
+                      'reverse': nuclutil.reverse,
+                      'complement': nuclutil.complement,
+                      'reverse_complement': nuclutil.reverse_complement,
+                      'count_nucleotides': nuclutil.count_nucleotides,
+                      'make_triplets': nuclutil.make_triplets,
+                      'reverse_transcribe': nuclutil.reverse_transcribe}
+    procedure = args[-1]
+    processed_result = []
+
+    for ind, seq in enumerate(args[:-1]):
+        if not nuclutil.is_dna_or_rna(seq):
+            print(f'Sequence number {ind + 1} is not available for operations! Skip it.')
+            continue
+        processed_result.append(function_names[procedure](seq))
+    if len(processed_result) == 1:
+        return processed_result[0]
+    return processed_result
 
 
 # main function for nucleic seqs processing
