@@ -222,10 +222,32 @@ def calculate_isoelectric_point(seq: str) -> float:
     return pi
 
 
-def analyze_secondary_structure(seq: str) -> list[str]:
+def analyze_secondary_structure(seq: str) -> str:
     """
-    Calculate the percentage of amino acids found in the three main
+    Calculate the percentage of amino acids which responsible for the three main
     types of protein secondary structure: beta-turn, beta-sheet and alpha-helix
     :param seq: protein seq in 1-letter encoding (str)
-    :return: percentage of amino acids belonging to three types of secondary structure (list[str])
+    :return: percentage of amino acids responsible for three types of secondary structure (str)
     """
+    b_turn_set = {'G', 'P', 'N', 'D'}
+    b_sheet_set = {'F', 'Y', 'I', 'V', 'C', 'W'}
+    alpha_helix_set = {'M', 'A', 'L', 'E', 'K'}
+    count_b_turn_res = 0
+    count_b_sheet_res = 0
+    count_a_helix_res = 0
+    for residue in seq:
+        if residue in b_turn_set:
+            count_b_turn_res += 1
+        if residue in b_sheet_set:
+            count_b_sheet_res += 1
+        if residue in alpha_helix_set:
+            count_a_helix_res += 1
+
+    b_turn_residue_percent = str(count_b_turn_res / len(seq) * 100)
+    b_sheet_residue_percent = str(count_b_sheet_res / len(seq) * 100)
+    alpha_helix_residue_percent = str(count_a_helix_res / len(seq) * 100)
+
+    second_struct_description = (f'b-turn amino acids in protein {b_turn_residue_percent}%\n'
+                                 f'b-sheet amino acids in protein {b_sheet_residue_percent}%\n'
+                                 f'alpha_helix amino acids in protein {alpha_helix_residue_percent}%\n')
+    return second_struct_description
