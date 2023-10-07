@@ -182,7 +182,10 @@ def calculate_average_hydrophobicity(seq: str) -> float:
     :param seq: protein seq in 1-letter encoding (str)
     :return: average hydrophobicity (float)
     """
-    pass
+    sum_hydrophobicity_ind = 0
+    for res in seq.upper():
+        sum_hydrophobicity_ind += RESIDUES_CHARACTERISTICS[res][0]
+    return sum_hydrophobicity_ind / len(seq)
 
 
 def get_mrna(seq: str) -> str:
