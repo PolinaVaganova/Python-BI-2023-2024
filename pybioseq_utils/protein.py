@@ -160,7 +160,8 @@ def find_site(seq: str, site: str) -> str:
         site_end_position = [(coordinate + len(site) - 1) for coordinate in site_start_position]
         for idx in range(len(site_start_position)):
             site_full_position.append(f'{site_start_position[idx]}:{site_end_position[idx]}')
-        return f"Site entry in sequence = {site_count}. Site residues can be found at positions: {', '.join(site_full_position)}"
+        return (f"Site entry in sequence = {site_count}. "
+                f"Site residues can be found at positions: {', '.join(site_full_position)}")
     else:
         return f"{site} site is not in sequence!"
 
