@@ -29,7 +29,13 @@ def transcribe(seq: str) -> str:
     :return:
     - str: rna transcript seq
     """
-    pass
+    if 'T' in seq or 't' in seq:
+        transcript = seq.replace('T', 'U').replace('t', 'u')
+    elif 'U' in seq.upper():
+        return 'Passed rna to function, dna excepted! Skip it!'
+    else:
+        transcript = seq
+    return transcript
 
 
 # function for getting a dna, based on rna transcript
