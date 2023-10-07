@@ -111,7 +111,7 @@ def reverse_complement(seq: str) -> str:
     :return:
     - str: complementary seq in reverse format
     """
-    pass
+    return reverse(complement(seq))
 
 
 # function for count nucleotides in seq
