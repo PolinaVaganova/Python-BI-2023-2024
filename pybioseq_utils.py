@@ -1,7 +1,7 @@
 from typing import Union, Sequence, List
-import pybioseq_utils.fastaq as fastaqtutil
-import pybioseq_utils.nucleic as nuclutil
-import pybioseq_utils.protein as protutil
+import scripts.fastaq as fastaqtutil
+import scripts.nucleic as nuclutil
+import scripts.protein as protutil
 
 
 # main function for nucleic seqs processing
