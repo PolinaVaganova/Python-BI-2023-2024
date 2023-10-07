@@ -127,14 +127,21 @@ def get_seq_characteristic(seq: str) -> dict:
     return res_count
 
 
-def find_res(seq: str, res_of_interest: str) -> str:
+def find_residue_position(seq: str, res_of_interest: str) -> str:
     """
     Find all positions of certain residue in your seq
     :param seq: protein seq in 1-letter encoding (str)
-    :param res_of_interest: specify the residue of interest (str)
+    :param res_of_interest: specify the residue of interest in 3-letter or 1-letter encoding (str)
     :return: positions of specified residue in your seq (str)
     """
-    pass
+    res_of_interest = res_of_interest.upper()
+    if len(res_of_interest) == 3:
+        res_of_interest = RESIDUES_NAMES[res_of_interest]
+    res_of_interest_positions = []
+    for ind, res in enumerate(seq, 1):
+        if res == res_of_interest:
+            res_of_interest_positions.append(ind)
+    return f"{res_of_interest} positions: {', '.join(map(str, res_of_interest_positions))}"
 
 
 def find_site(seq: str, site: str) -> str:
