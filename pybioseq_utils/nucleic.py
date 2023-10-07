@@ -41,7 +41,7 @@ def transcribe(seq: str) -> str:
 # function for getting a dna, based on rna transcript
 def reverse_transcribe(seq: str) -> str:
     """
-    Calculate dna complementary seq from rna seq
+    Calculate complementary dna seq from rna seq
 
     :param seq:
     - seq (str): rna seq
@@ -49,7 +49,15 @@ def reverse_transcribe(seq: str) -> str:
     :return:
     - str: complementary dna seq
     """
-    pass
+    transcript = ''
+    for nucleotide in seq:
+        if nucleotide.upper() == 'T':
+            return 'Passed dna to function, rna excepted! Skip it!'
+        elif nucleotide.isupper():
+            transcript += RNA_DNA_PAIRS[nucleotide]
+        else:
+            transcript += RNA_DNA_PAIRS[nucleotide.upper()].lower()
+    return transcript
 
 
 def reverse(seq: str) -> str:
