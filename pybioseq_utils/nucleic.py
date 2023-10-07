@@ -84,7 +84,20 @@ def complement(seq: str) -> str:
     :return:
     - str: complementary seq
     """
-    pass
+    complement_seq = ''
+    if 'U' in seq:
+        for nucleotide in seq:
+            if nucleotide.isupper():
+                complement_seq += RNA_RNA_PAIRS[nucleotide]
+            else:
+                complement_seq += RNA_RNA_PAIRS[nucleotide.upper()].lower()
+    else:
+        for nucleotide in seq:
+            if nucleotide.isupper():
+                complement_seq += DNA_DNA_PAIRS[nucleotide]
+            else:
+                complement_seq += DNA_DNA_PAIRS[nucleotide.upper()].lower()
+    return complement_seq
 
 
 # function for getting a complementary sequence for dna or rna in reverse format
