@@ -35,7 +35,7 @@ input coma-separated dna or rna sequences in 1-letter code it can contain upper 
 specify procedure you want to apply (see list below). Always must be the last argument!
 
 **Returns**:
-- **operation_result**: str or list
+- **operation_result**: *str* or *list*
 result of function work in list or str format (dependent on number of input sequences)
 
 **Operations list**
@@ -139,12 +139,12 @@ Filter any number of fasta files based on given arguments.
 - FASTAQ sequences organised in dictionary: key = sequence name, value = sequence and sequence quality in ASCII code (all as *str*)
 
 **gc_bounds**: *tuple*, *int* or *float*
-- lower and upper boundaries of GC-content in percent orginised in `tuple`
+- lower and upper boundaries of GC-content in percent orginised in *tuple*
 - by default = (0, 100)
 - if only one number given it will be considered the upper boundary with the lower boundary = 0
 
 **length_bounds**: *tuple*, *int* or *float*
-- lower and upper boundaries of sequence length orginised in `tuple`
+- lower and upper boundaries of sequence length orginised in *tuple*
 - by default = (0, 2 ** 32)
 - if only one number given it will be considered the upper boundary with the lover boundary = 0
 
