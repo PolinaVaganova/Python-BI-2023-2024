@@ -97,7 +97,7 @@ def run_protein_seq_processing(*args: str) -> Union[List[str], str, float, List[
 # main function for fastaq seqs filtering
 def run_fastaq_filtering(input_path: str, output_filename: str, gc_bounds: Union[tuple, float, int] = (0, 100),
                          length_bounds: Union[tuple, float] = (0, 2 ** 32),
-                         quality_threshold: int = 0) -> dict:
+                         quality_threshold: int = 0) -> None:
     """
     Launch filtering fastaq seq using 3 adjustable cutoffs. Allowed intervals include cutoffs values.
 
@@ -110,7 +110,9 @@ def run_fastaq_filtering(input_path: str, output_filename: str, gc_bounds: Union
     :param quality_threshold: cutoff for seq quality in phred33 scale. Default = 0.
     Reads with average score lower than this cutoff will be dropped.
 
-    :return:
+    :return: None
+    This function does not return anything. It saves the filtered FASTQ sequences
+    in the specified output file in fastq_filtrator_results directory.
     """
     seqs = fastaqtutil.fastaq_to_dict(input_path)
     filtered_seqs = dict()

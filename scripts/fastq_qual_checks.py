@@ -45,21 +45,27 @@ def quality_filtering(quality_seq: str, quality_threshold: Union[int, float]) ->
 
 def fastaq_to_dict(input_path: str) -> dict[str, tuple[str, str]]:
     """
-    Parse input fastq file and write it content into dictionary
-    :param input_path: path to the fastq file (str)
+    Parse input FASTQ file and write it content into dictionary
+    :param input_path: path to the FASTQ file (str)
     :return: dict, where key is sequence name, values are seqs snd quality
     but the last key and value include input fastaq file name
     """
     pass
 
 
-def dict_to_fastaq(seqs_dict: dict, output_filename: str = None):
+def dict_to_fastaq(seqs_dict: dict, output_filename: str = None) -> None:
     """
-    Write dict with fastaq to actual fastq file
-    :param seqs_dict: dictionary with seqs and input fastaq file name (dict)
-    :param output_filename:  output fastq file name (str)
+    Write dict with fastaq to the actual FASTQ file
+    :param seqs_dict: dictionary with seqs and input FASTQ file name (dict)
+    :param output_filename:  output FASTQ file name (str)
     :return: None
-    This function creates a FASTQ file using the provided dictionary of sequences.
-    It does not return any value.
+    This function creates a FASTQ file in 'fastq_filtrator_results' directory using the provided dictionary of sequences
+    The new file will be named '<output_filename>.fastq' where <output_filename>
+    is derived from the input file name by default or can be specified using output_filename argument.
+
+    Example:
+    --------
+    If input file name is 'example.fastq' and output_filename is not specified the resulting FASTQ file will be
+    'fastq_filtrator_results/example.fastq'.
     """
     pass
