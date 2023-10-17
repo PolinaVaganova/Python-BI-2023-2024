@@ -41,3 +41,25 @@ def quality_filtering(quality_seq: str, quality_threshold: Union[int, float]) ->
     for quality_symbol in quality_seq:
         scores_list.append(ord(quality_symbol) - 33)
     return sum(scores_list) / len(scores_list) >= quality_threshold
+
+
+def fastaq_to_dict(input_path: str) -> dict[str, tuple[str, str]]:
+    """
+    Parse input fastq file and write it content into dictionary
+    :param input_path: path to the fastq file (str)
+    :return: dict, where key is sequence name, values are seqs snd quality
+    but the last key and value include input fastaq file name
+    """
+    pass
+
+
+def dict_to_fastaq(seqs_dict: dict, output_filename: str = None):
+    """
+    Write dict with fastaq to actual fastq file
+    :param seqs_dict: dictionary with seqs and input fastaq file name (dict)
+    :param output_filename:  output fastq file name (str)
+    :return: None
+    This function creates a FASTQ file using the provided dictionary of sequences.
+    It does not return any value.
+    """
+    pass
