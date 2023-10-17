@@ -44,13 +44,32 @@ def quality_filtering(quality_seq: str, quality_threshold: Union[int, float]) ->
     return sum(scores_list) / len(scores_list) >= quality_threshold
 
 
-def fastaq_to_dict(input_path: str) -> dict[str, tuple[str, str]]:
+def fastaq_to_dict(input_path: str) -> dict[str, tuple[str, str, str]]:
     """
     Parse input FASTQ file and write it content into dictionary
     :param input_path: path to the input FASTQ file (str)
     :return: dict, where key is sequence name, values are seqs and quality
     """
-    pass
+    if not os.path.exists(input_path):
+        raise ValueError('Please provide correct path to input FASTAQ file.')
+    with open(input_path, mode='r') as fastaq_input_file:
+        fastaq_dict = {}
+        counter = 1
+        for line in fastaq_input_file:
+            if counter == 1:
+                name = line.strip('\n')
+                counter += 1
+            elif counter == 2:
+                seq = line.strip('\n')
+                counter += 1
+            elif counter == 3:
+                commentary = line.strip('\n')
+                counter += 1
+            elif counter == 4:
+                quality = line.strip('\n')
+                fastaq_dict[name] = (seq, commentary, quality)
+                counter = 1
+    return fastaq_dict
 
 
 def dict_to_fastaq(seqs_dict: dict, input_path: str, output_filename: str = None) -> None:
