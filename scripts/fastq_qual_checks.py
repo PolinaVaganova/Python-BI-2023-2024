@@ -88,4 +88,16 @@ def dict_to_fastaq(seqs_dict: dict, input_path: str, output_filename: str = None
     If input file name is 'example.fastq' and output_filename is not specified the resulting FASTQ file will be
     'fastq_filtrator_results/example.fastq'.
     """
-    pass
+    if output_filename is None:
+        output_filename = os.path.basename(input_path)
+    if not output_filename.endswith('.fastq'):
+        output_filename = output_filename + '.fastq'
+
+    os.makedirs('fastq_filtrator_results', exist_ok=True)
+
+    with open(os.path.join('fastq_filtrator_results', output_filename), mode='w') as fastq:
+        for seq_name in seqs_dict:
+            fastq.write(seq_name + '\n')
+            fastq.write(seqs_dict[seq_name][0] + '\n')
+            fastq.write(seqs_dict[seq_name][1] + '\n')
+            fastq.write(seqs_dict[seq_name][2] + '\n')
