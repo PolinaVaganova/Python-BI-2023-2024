@@ -1,4 +1,5 @@
 from typing import Union
+import os
 
 
 def gc_filtering(seq: str, gc_bounds: Union[tuple, float, int]) -> bool:
@@ -46,17 +47,17 @@ def quality_filtering(quality_seq: str, quality_threshold: Union[int, float]) ->
 def fastaq_to_dict(input_path: str) -> dict[str, tuple[str, str]]:
     """
     Parse input FASTQ file and write it content into dictionary
-    :param input_path: path to the FASTQ file (str)
-    :return: dict, where key is sequence name, values are seqs snd quality
-    but the last key and value include input fastaq file name
+    :param input_path: path to the input FASTQ file (str)
+    :return: dict, where key is sequence name, values are seqs and quality
     """
     pass
 
 
-def dict_to_fastaq(seqs_dict: dict, output_filename: str = None) -> None:
+def dict_to_fastaq(seqs_dict: dict, input_path: str, output_filename: str = None) -> None:
     """
     Write dict with fastaq to the actual FASTQ file
     :param seqs_dict: dictionary with seqs and input FASTQ file name (dict)
+    :param input_path: path to the input FASTAQ file (str)
     :param output_filename:  output FASTQ file name (str)
     :return: None
     This function creates a FASTQ file in 'fastq_filtrator_results' directory using the provided dictionary of sequences

@@ -95,7 +95,7 @@ def run_protein_seq_processing(*args: str) -> Union[List[str], str, float, List[
 
 
 # main function for fastaq seqs filtering
-def run_fastaq_filtering(input_path: str, output_filename: str, gc_bounds: Union[tuple, float, int] = (0, 100),
+def run_fastaq_filtering(input_path: str, output_filename: str = None, gc_bounds: Union[tuple, float, int] = (0, 100),
                          length_bounds: Union[tuple, float] = (0, 2 ** 32),
                          quality_threshold: int = 0) -> None:
     """
@@ -122,4 +122,4 @@ def run_fastaq_filtering(input_path: str, output_filename: str, gc_bounds: Union
         quality_result = fastaqtutil.quality_filtering(seqs[seq_name][1], quality_threshold)
         if gc_result and length_result and quality_result:
             filtered_seqs[seq_name] = seqs[seq_name]
-    fastaqtutil.dict_to_fastaq(filtered_seqs, output_filename)
+    fastaqtutil.dict_to_fastaq(filtered_seqs, input_path, output_filename=output_filename)
