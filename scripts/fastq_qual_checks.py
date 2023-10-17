@@ -97,7 +97,7 @@ def dict_to_fastaq(seqs_dict: dict, input_path: str, output_filename: str = None
 
     with open(os.path.join('fastq_filtrator_results', output_filename), mode='w') as fastq:
         for seq_name in seqs_dict:
-            fastq.write(seq_name + '\n')
-            fastq.write(seqs_dict[seq_name][0] + '\n')
-            fastq.write(seqs_dict[seq_name][1] + '\n')
-            fastq.write(seqs_dict[seq_name][2] + '\n')
+            fastq.write(f'{seq_name}\n')
+            fastq.write(f'{seqs_dict[seq_name][0]}\n')
+            fastq.write(f'{seqs_dict[seq_name][1]}\n')
+            fastq.write(f'{seqs_dict[seq_name][2]}\n')
