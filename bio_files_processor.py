@@ -29,3 +29,18 @@ def convert_multiline_fasta_to_oneline(input_fasta: str, output_fasta: str = Non
             else:
                 seq = f'{seq}\n'
         fout.write(seq)
+
+
+def select_genes_from_gbk_to_fasta(input_gbk: str, genes: list,  n_before: int = 1, n_after: int = 1,
+                                   output_fasta: str = None) -> None:
+    """
+    Creates FASTA file with neighbour CDSs to given genes from GBK file in fasta_selected_from_gbk directory.
+    :param input_gbk: path to GBK file (str)
+    :param genes: genes of interest that are used for searching neighbour CDSs (str)
+    :param n_before: number of neighbor CDSs before gene of interest (int)
+    :param n_after: number of neighbor CDSs after gene of interest (int)
+    :param output_fasta: name of the output fasta file (str)
+    :return: None
+    """
+
+    pass
