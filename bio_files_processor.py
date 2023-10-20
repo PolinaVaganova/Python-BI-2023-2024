@@ -41,7 +41,7 @@ def select_genes_from_gbk_to_fasta(input_gbk: str, genes: list, n_before: int = 
     :param n_after: number of neighbor CDSs after gene of interest (int)
     :param output_fasta: name of the output fasta file (str)
     :return: None
-    This function creates a FASTA file in current directory.
+    This function creates a FASTA file in fasta_selected_from_gbk directory.
     If the output_file param is not specified the new file will be named '<CDS_selected_from_gbk_input_filename>.fasta'
     where <input_filename> is derived from the input file name.
     """
@@ -130,7 +130,7 @@ def parse_blast_output(input_file: str, output_file=None) -> None:
     This function creates a txt file in current directory.
     :return: None
     This function creates a txt file in current directory.
-    If the output_file param is not specified the new file will be named '<best_input_filename>.txt', where
+    If the output_file param is not specified the new file will be named 'best_<input_filename>.txt', where
     <input_filename> is derived from the input file name.
 
     """

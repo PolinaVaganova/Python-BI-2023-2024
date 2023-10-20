@@ -123,3 +123,5 @@ def run_fastaq_filtering(input_path: str, output_filename: str = None, gc_bounds
         if gc_result and length_result and quality_result:
             filtered_seqs[seq_name] = seqs[seq_name]
     fastaqtutil.dict_to_fastaq(filtered_seqs, input_path, output_filename=output_filename)
+
+
