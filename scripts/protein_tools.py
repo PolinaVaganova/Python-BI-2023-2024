@@ -67,6 +67,9 @@ AMINO_ACID_TO_MRNA = {'A': 'GCN',
                       'Y': 'UAY',
                       'V': 'GUN'}
 
+B_TURN = {'G', 'P', 'N', 'D'}
+B_SHEET = {'F', 'Y', 'I', 'V', 'C', 'W'}
+ALPHA_HELIX = {'M', 'A', 'L', 'E', 'K'}
 
 def change_residues_encoding(seq: str, current_encoding: str) -> str:
     """
@@ -160,10 +163,10 @@ def find_site(seq: str, site: str) -> str:
         site_end_position = [(coordinate + len(site) - 1) for coordinate in site_start_position]
         for idx in range(len(site_start_position)):
             site_full_position.append(f'{site_start_position[idx]}:{site_end_position[idx]}')
-        return (f"Site entry in sequence = {site_count}. "
-                f"Site residues can be found at positions: {', '.join(site_full_position)}")
+        return (f'Site entry in sequence = {site_count}. '
+                f'Site residues can be found at positions: {', '.join(site_full_position)}')
     else:
-        return f"{site} site is not in sequence!"
+        return f'{site} site is not in sequence!'
 
 
 def calculate_protein_mass(seq: str) -> float:
@@ -231,9 +234,6 @@ def analyze_secondary_structure(seq: str) -> str:
     :param seq: protein seq in 1-letter encoding (str)
     :return: percentage of amino acids responsible for three types of secondary structure (str)
     """
-    b_turn_set = {'G', 'P', 'N', 'D'}
-    b_sheet_set = {'F', 'Y', 'I', 'V', 'C', 'W'}
-    alpha_helix_set = {'M', 'A', 'L', 'E', 'K'}
     count_b_turn_res = 0
     count_b_sheet_res = 0
     count_a_helix_res = 0
@@ -249,7 +249,7 @@ def analyze_secondary_structure(seq: str) -> str:
     b_sheet_residue_percent = str(count_b_sheet_res / len(seq) * 100)
     alpha_helix_residue_percent = str(count_a_helix_res / len(seq) * 100)
 
-    second_struct_description = (f'b-turn amino acids in protein {b_turn_residue_percent}%\n'
-                                 f'b-sheet amino acids in protein {b_sheet_residue_percent}%\n'
-                                 f'alpha_helix amino acids in protein {alpha_helix_residue_percent}%\n')
+    second_struct_description = (f'b-turn {b_turn_residue_percent}%\n'
+                                 f'b-sheet {b_sheet_residue_percent}%\n'
+                                 f'alpha_helix {alpha_helix_residue_percent}%\n')
     return second_struct_description
