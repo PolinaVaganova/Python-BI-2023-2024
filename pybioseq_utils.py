@@ -1,100 +1,9 @@
-from typing import Union, Sequence, List
-import scripts.fastq_qual_checks as fastaqtutil
-import scripts.nucleic as nuclutil
-import scripts.protein as protutil
+import os
+from typing import Union
+from Bio import SeqIO, SeqUtils
 
 
-# main function for nucleic seqs processing
-def run_nucleic_seq_processing(*args: str) -> Union[List[Sequence], Sequence]:
-    """
-    Specify and launch operation with dna or rna sequences
-
-    :param args:
-    - seq (str): dna or rna sequences for analysis (any number and case)
-    - operation name (str): chosen procedure for analysis
-
-    :return:
-    - str: the result of procedure (case-sensitive)
-    """
-    function_names = {'transcribe': nuclutil.transcribe,
-                      'reverse': nuclutil.reverse,
-                      'complement': nuclutil.complement,
-                      'reverse_complement': nuclutil.reverse_complement,
-                      'count_nucleotides': nuclutil.count_nucleotides,
-                      'make_triplets': nuclutil.make_triplets,
-                      'reverse_transcribe': nuclutil.reverse_transcribe}
-    procedure = args[-1]
-    processed_result = []
-
-    for ind, seq in enumerate(args[:-1]):
-        if not nuclutil.is_dna_or_rna(seq):
-            print(f'Sequence number {ind + 1} is not available for operations! Skip it.')
-            continue
-        processed_result.append(function_names[procedure](seq))
-    if len(processed_result) == 1:
-        return processed_result[0]
-    return processed_result
-
-
-# main function for nucleic seqs processing
-def run_protein_seq_processing(*args: str) -> Union[List[str], str, float, List[float], dict, List[dict]]:
-    """
-    Specify and launch operation with proteins sequences. Parameters must be passed exactly in order given below
-
-    :param args:
-    - seq (str): amino acids sequences for analysis in 1-letter or 3-letter code (all encodings must be the same)
-    Any number of sequences in any cases acceptable.
-    Residues names may be separated by whitespaces (every 3 or 1 letter, depend on encoding).
-    - additional arg (str): necessary parameter for some functions (for example, specify target protein site)
-    - current_encoding (str): specify current encoding of your sequences as 'one' or 'three' corresponding to the length
-    of residues names
-    - operation name (str): specify procedure you want to apply
-
-    :return: the result of procedure in list, str or float format
-    """
-    # first value is function name, second is real function, third is number of function additional arguments
-    function_names = {'change_residues_encoding': [protutil.change_residues_encoding, 1],
-                      'is_protein': [protutil.is_protein, 1],
-                      'get_seq_characteristic': [protutil.get_seq_characteristic, 1],
-                      'find_residue_position': [protutil.find_residue_position, 2],
-                      'find_site': [protutil.find_site, 2],
-                      'calculate_protein_mass': [protutil.calculate_protein_mass, 1],
-                      'calculate_average_hydrophobicity': [protutil.calculate_average_hydrophobicity, 1],
-                      'get_mrna': [protutil.get_mrna, 1],
-                      'calculate_isoelectric_point': [protutil.calculate_isoelectric_point, 1],
-                      'analyze_secondary_structure': [protutil.analyze_secondary_structure, 1]}
-
-    # parse arguments
-    procedure = args[-1]
-    if function_names[procedure][1] == 1:
-        current_encoding = args[-2]
-    else:
-        current_encoding = args[-3]
-    seqs = [seq for seq in args[:-1 - (function_names[procedure][1])]]
-    # create list for output
-    processed_result = []
-    # prepare sequence and launch desired operation
-    for idx, seq in enumerate(seqs):
-        if not protutil.is_protein(seq, current_encoding=current_encoding):
-            print(f'Sequence number {idx + 1} is not available for operations! Skip it.')
-            processed_result.append(f'Sequence number {idx + 1} is not available for operations! Skip it.')
-            continue
-        if current_encoding != 'one':
-            seq = protutil.change_residues_encoding(seq, current_encoding=current_encoding)
-        if function_names[procedure][1] == 1:
-            if procedure == 'change_residues_encoding' or procedure == 'is_protein':
-                processed_result.append(function_names[procedure][0](seq, current_encoding=current_encoding))
-            else:
-                processed_result.append(function_names[procedure][0](seq))
-        elif function_names[procedure][1] == 2:
-            add_arg = args[-2]
-            processed_result.append(function_names[procedure][0](seq, add_arg))
-    if len(processed_result) == 1:
-        return processed_result[0]
-    return processed_result
-
-
-# main function for fastaq seqs filtering
+# function for fastaq files filtering
 def run_fastaq_filtering(input_path: str, output_filename: str = None, gc_bounds: Union[tuple, float, int] = (0, 100),
                          length_bounds: Union[tuple, float] = (0, 2 ** 32),
                          quality_threshold: int = 0) -> None:
@@ -114,14 +23,34 @@ def run_fastaq_filtering(input_path: str, output_filename: str = None, gc_bounds
     This function does not return anything. It saves the filtered FASTQ sequences
     in the specified output file in fastq_filtrator_results directory.
     """
-    seqs = fastaqtutil.fastaq_to_dict(input_path)
-    filtered_seqs = dict()
-    for seq_name in seqs:
-        gc_result = fastaqtutil.gc_filtering(seqs[seq_name][0], gc_bounds)
-        length_result = fastaqtutil.length_filtering(seqs[seq_name][0], length_bounds)
-        quality_result = fastaqtutil.quality_filtering(seqs[seq_name][1], quality_threshold)
-        if gc_result and length_result and quality_result:
-            filtered_seqs[seq_name] = seqs[seq_name]
-    fastaqtutil.dict_to_fastaq(filtered_seqs, input_path, output_filename=output_filename)
+    filtered_seqs = []
 
+    for record in SeqIO.parse(input_path, 'fastq'):
+        # create dict for collect filtration steps results
+        filter_result = {}
 
+        # filter based on GC content
+        gc_percent = SeqUtils.gc_fraction(record) * 100
+        if isinstance(gc_bounds, tuple):
+            filter_result['gc_content'] = (gc_bounds[0] <= gc_percent <= gc_bounds[1])
+        else:
+            filter_result['gc_content'] = (gc_percent <= gc_bounds)
+
+        # filter based on length
+        length = len(record.seq)
+        if isinstance(length_bounds, tuple):
+            filter_result['length'] = (length_bounds[0] <= length <= length_bounds[1])
+        else:
+            filter_result['length'] = (length <= length_bounds)
+
+        # filter based on quality
+        quality = sum(record.letter_annotations['phred_quality']) / len(record)
+        filter_result['quality'] = (quality >= quality_threshold)
+
+        # total filtering: take structures that passed all cutoffs and write them to the output file
+        if filter_result['gc_content'] and filter_result['length'] and filter_result['quality']:
+            filtered_seqs.append(record)
+
+    os.makedirs('fastq_filtrator_results', exist_ok=True)
+
+    SeqIO.write(filtered_seqs, os.path.join('fastq_filtrator_results', output_filename), 'fastq')
