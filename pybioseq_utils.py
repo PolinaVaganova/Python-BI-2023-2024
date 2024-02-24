@@ -3,6 +3,7 @@ from typing import Union
 from Bio import SeqIO, SeqUtils
 from abc import ABC, abstractmethod
 
+
 class NucleotideNotFoundError(ValueError):
     """
     Error raised when there is incorrect nucleotide in corresponding sequence.
@@ -55,12 +56,21 @@ class NucleicAcidSequence(BiologicalSequence, ABC):
                 complement_seq += self.complement_pairs[nucleotide]
             else:
                 complement_seq += self.complement_pairs[nucleotide.upper()].lower()
-        result = type(self)(complement_seq)
-        return result
+        resulting_seq = type(self)(complement_seq)
+        return resulting_seq
 
     def gc_content(self):
         self.is_correct()
         return SeqUtils.gc_fraction(self.seq)
+
+
+class RNASequence(NucleicAcidSequence, BiologicalSequence, ABC):
+    def __init__(self, seq):
+        super().__init__(seq)
+        self.complement_pairs = {'A': 'U',
+                                 'U': 'A',
+                                 'C': 'G',
+                                 'G': 'C'}
 
 
 class DNASequence(NucleicAcidSequence, BiologicalSequence, ABC):
@@ -74,22 +84,28 @@ class DNASequence(NucleicAcidSequence, BiologicalSequence, ABC):
     def transcribe(self):
         """
         Calculate rna transcript from dna seq
-
-        :return:
-        - str: rna transcript
         """
         if 'T' in self.seq or 't' in self.seq:
-            return self.seq.replace('T', 'U').replace('t', 'u')
-        return self.seq
+            transcript = type(self)(self.seq.replace('T', 'U').replace('t', 'u'))
+        else:
+            transcript = type(self)(self.seq)
+
+        return transcript
 
 
-class RNASequence(NucleicAcidSequence, BiologicalSequence, ABC):
-    def __init__(self, seq):
-        super().__init__(seq)
-        self.complement_pairs = {'A': 'U',
-                                 'U': 'A',
-                                 'C': 'G',
-                                 'G': 'C'}
+class AminoAcidSequence(BiologicalSequence, ABC):
+    def __init__(self, seq: str):
+        self.seq = seq
+        self.complement_pairs = {}
+
+    def is_correct(self):
+        """
+        Check if seq dna/rna or not
+        """
+        for nucleotide in set(self.seq):
+            if nucleotide.upper() not in self.complement_pairs.keys():
+                raise NucleotideNotFoundError(f'Sequence contains invalid nucleotide: {nucleotide}')
+        return None
 
 
 def run_fastaq_filtering(input_path: str, output_filename: str = None, gc_bounds: Union[tuple, float, int] = (0, 100),
