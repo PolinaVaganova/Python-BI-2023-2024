@@ -1,5 +1,5 @@
 from typing import Union, Sequence, List
-import scripts.fastaq as fastaqtutil
+import scripts.fastq_qual_checks as fastaqtutil
 import scripts.nucleic as nuclutil
 import scripts.protein as protutil
 
@@ -95,13 +95,14 @@ def run_protein_seq_processing(*args: str) -> Union[List[str], str, float, List[
 
 
 # main function for fastaq seqs filtering
-def run_fastaq_filtering(seqs: dict, gc_bounds: Union[tuple, float, int] = (0, 100),
+def run_fastaq_filtering(input_path: str, output_filename: str = None, gc_bounds: Union[tuple, float, int] = (0, 100),
                          length_bounds: Union[tuple, float] = (0, 2 ** 32),
-                         quality_threshold: int = 0) -> dict:
+                         quality_threshold: int = 0) -> None:
     """
     Launch filtering fastaq seq using 3 adjustable cutoffs. Allowed intervals include cutoffs values.
 
-    :param seqs: dict with fastaq seqs, where key - seq name (str), value - seq, it's quality (tuple with str).
+    :param input_path: path to input fastaq file
+    :param output_filename: name of output fastaq file
     :param gc_bounds: cutoff for GC content in percents. You can specify lower and upper limits (tuple with floats)
     or just upper limit (then pass float). Default = (0,100)
     :param length_bounds: cutoff fot length in nucleic bases. You can specify lower and upper limits (tuple with floats)
@@ -109,8 +110,11 @@ def run_fastaq_filtering(seqs: dict, gc_bounds: Union[tuple, float, int] = (0, 1
     :param quality_threshold: cutoff for seq quality in phred33 scale. Default = 0.
     Reads with average score lower than this cutoff will be dropped.
 
-    :return:
+    :return: None
+    This function does not return anything. It saves the filtered FASTQ sequences
+    in the specified output file in fastq_filtrator_results directory.
     """
+    seqs = fastaqtutil.fastaq_to_dict(input_path)
     filtered_seqs = dict()
     for seq_name in seqs:
         gc_result = fastaqtutil.gc_filtering(seqs[seq_name][0], gc_bounds)
@@ -118,4 +122,6 @@ def run_fastaq_filtering(seqs: dict, gc_bounds: Union[tuple, float, int] = (0, 1
         quality_result = fastaqtutil.quality_filtering(seqs[seq_name][1], quality_threshold)
         if gc_result and length_result and quality_result:
             filtered_seqs[seq_name] = seqs[seq_name]
-    return filtered_seqs
+    fastaqtutil.dict_to_fastaq(filtered_seqs, input_path, output_filename=output_filename)
+
+

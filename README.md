@@ -15,13 +15,24 @@ cd pybioseq-utils
 Key packages and programs:
 - [Python](https://www.python.org/downloads/) (version >= 3.9)
 
-## Usage
+
+## biopyseq_utils.py
+
+This script contains function which can:
+
+- proccess nucleic seqs - **run_nucleic_seq_processing**
+
+- proccess protein seqs - **run_protein_seq_processing**
+
+- filter fastq file - **run_fastaq_filtering**
+
+### Usage
 
 ```python
 # import main functions
 from biopyseq_utils import run_nucleic_seq_processing, run_protein_seq_processing, run_fastaq_filtering
 ```      
-This section contains description of biopyseq-utils functions.
+This section contains detailed description of biopyseq-utils functions.
 
 ### run_nucleic_seq_processing(\*args)
 
@@ -130,13 +141,19 @@ run_protein_analysis(seq2, seq3, 'one', 'D', 'find_residue_position')
 
 ```
 
-### run_fastaq_filtering(seqs, gc_bounds=(0, 100), length_bounds=(0, 2\*\*32), quality_threshold=0)
+### run_filter_fastaq(input_path, output_file, gc_bounds=(0, 100), length_bounds=(0, 2 ** 32), quality_threshold=0)
 
-Filter any number of fasta files based on given arguments. 
+Filter any number of fasta files based on given on GC-content, length, and sequencing quality (phred33) from a FASTQ file.
+Result will be saved in the `fastq_filtrator_results` directory within the same location as the input file.
 
 **Parameters:**
-**seqs**: *dict*
-- FASTAQ sequences organised in dictionary: key = sequence name, value = sequence and sequence quality in ASCII code (all as *str*)
+
+**input_path**: *str*
+- Path to the input FASTQ file
+
+**output_filename** 
+- Output FASTQ file name, which will be saved in `fastq_filtrator_results`. 
+- If not provided, the output file will be named same as input FASTAQ file.
 
 **gc_bounds**: *tuple*, *int* or *float*
 - lower and upper boundaries of GC-content in percent orginised in *tuple*
@@ -153,15 +170,140 @@ Filter any number of fasta files based on given arguments.
 - by default=0
 
 **Returns**:
-- **filtered seq**: *dict*
-Sequences which passed all the given cutoffs. 
+- *None*
+This function does not return anything. It saves the filtered FASTQ sequences
+in the specified output file in `fastq_filtrator_results` directory.
+    
+**Example**
+```python
+run_filter_fastaq('/path/to/input/dir/input.fatq', output_filename='output.fastq', gc_bounds=(35, 82), length_bounds=(4, 8), quality_threshold=22)
+# This will create a file named output.fastq in the fastq_filtrator_results directory with filtered sequences.
+```
+
+## bio_files_processor.py
+
+### Usage
+
+```python
+# import main function
+from bio_files_processor import convert_multiline_fasta_to_oneline, select_genes_from_gbk_to_fasta, change_fasta_start_pos, parse_blast_output
+
+```
+### convert_multiline_fasta_to_oneline(input_fasta, output_fasta) 
+
+Creates FASTA file with oneline sequences based on given FASTA file with multiline sequences in the same directory.
+
+**Parameters:**
+
+**input_fasta**: *str*
+- Path to the input multiline FASTA file
+
+**output_fasta** : *str*
+- Name of the output oneline FASTA file 
+- If not provided, the output file will be named '<oneline_result_input_filename>.fasta'
+    where <input_filename> is derived from the input file name.input FASTA  file.
+
+**Returns**:
+- *None*
+This function creates the output FASTA file in current directory.
+    
+**Example**
+```python
+convert_multiline_fasta_to_oneline('/path/to/input/dir/input.fatq', output_fasta='output.fasta')
+# This will create a file named output.fasta in the current directory.
+```
+
+### select_genes_from_gbk_to_fasta(input_gbk, genes, n_before, n_after, output_fasta)  
+
+Extract neighbor CDSs to specified genes from a GBK file.
+Generate a FASTA file containing the sequences in the `fasta_selected_from_gbk` directory within the same location as the input file.
+
+**Parameters:**
+
+**input_gbk**: *str*
+- Path to the input GBK file
+
+**genes** : *str*
+- Genes of interest to be used for neighbor CDSs search 
+
+**n_before** : *int*
+- Number of neighbor CDSs before the gene of interest
+- by default = 1
+
+**n_after** : *int*
+- Number of neighbor CDSs after the gene of interest
+- by default = 1
+
+**output_fasta**: *str*
+- Name of the output FASTA file. If not provided, the output file will be named '<CDS_selected_from_gbk_input_filename>.fasta'
+    where <input_filename> is derived from the input file name..
+
+**Returns**:
+- *None*
+This function creates a FASTA file in `fasta_selected_from_gbk` directory.
+    
+**Example**
+```python
+select_genes_from_gbk_to_fasta('/path/to/input/dir/input.gbk', 'gene1', 'gene2', n_before=2, n_after=2, output_fasta='output.fasta')
+# This will create a FASTA file named output.fasta in fasta_selected_from_gbk directory containing sequences of neighbor CDSs to 'gene1' and 'gene2' from the input.gbk file.
+```
+
+### change_fasta_start_pos(input_fasta, shift, output_fasta)  
+
+Shift the starting position of sequence in the input FASTA file.
+
+**Parameters:**
+
+**input_fasta**: *str*
+- Path to the input FASTA file
+
+**shift** : *int*
+- Number of positions to shift the start nucleotide of sequence
+
+**output_fasta**: *str*
+- Name of the output FASTA file. If not provided, the output file will be named 'shifted_by_<shift>_nucleotide_<input_filename>'
+    where <input_filename> is derived from the input file name and <shift> from the corresponding param.
+
+**Returns**:
+- *None*
+This function creates a FASTA file in current directory.
 
 **Example**
 ```python
-fastaq_files_dict = {'seq_name1': ('ATCGATGCATGC', 'jjG#HHFddd@'), 'seq_name2': ('GGGTCATTT', '!@jHHj')}
+change_fasta_start_pos('/path/to/input/dir/input.fasta', 2, output_fasta='output.fasta')
 
-run_filter_fastaq(fastaq_files_dict, gc_bounds=(30, 80), length_bounds=(4, 8), quality_threshold=22)
+# if input file contains `ATCCGT` sequence, the output.fasta will contain 'CCGTAT'
 
+change_fasta_start_pos('/path/to/input/dir/input.fasta', 4, output_fasta='output.fasta')
+
+# if input file contains `ATCCGT` sequence, the output.fasta will contain 'GTATCC'
+
+```
+
+
+### parse_blast_output(input_file, output_file)
+
+Extract the descriptions (gene names) of the best BLAST results from the blast results file.
+Result bill be saved in the `best_blast_results` directory within the same location as the input file.
+
+**Parameters:**
+
+**input_fasta**: *str*
+- Path to the input FASTA file
+
+**output_fasta**: *str*
+- Name of the output txt file. If not provided, the output file will be named 'best_<input_filename>.txt', where
+    <input_filename> is derived from the input file name.
+
+**Returns**:
+- *None*
+This function creates a txt file in current directory.
+
+**Example**
+```python
+parse_blast_output('/path/to/input/dir/blast_results.txt', output_file='output_results')
+
+# This will create a file named output_results.txt with the descriptions of the best BLAST results.
 ```
 
 Contribution
