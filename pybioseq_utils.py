@@ -3,7 +3,6 @@ from typing import Union
 from Bio import SeqIO, SeqUtils
 from abc import ABC, abstractmethod
 
-
 class NucleotideNotFoundError(ValueError):
     """
     Error raised when there is incorrect nucleotide in corresponding sequence.
@@ -143,8 +142,3 @@ def run_fastaq_filtering(input_path: str, output_filename: str = None, gc_bounds
     os.makedirs('fastq_filtrator_results', exist_ok=True)
 
     SeqIO.write(filtered_seqs, os.path.join('fastq_filtrator_results', output_filename), 'fastq')
-
-
-if __name__ == "__main__":
-    path_to_fasta = '/home/polina/bioinf/python_programming/HW6_Files/example_data/test.fastq'
-    run_fastaq_filtering(path_to_fasta, 'test.fastq', gc_bounds=(3, 50), quality_threshold=20)
