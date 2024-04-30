@@ -209,12 +209,12 @@ def convert_multiline_fasta_to_oneline(
         for line in fin:
             if line.startswith(">"):
                 if seq:
-                    fout.write(f"{seq}\n")
+                    fout.write(seq)
                     seq = ""
                 fout.write(line)
             else:
-                seq = f"{seq}\n"
-        fout.write(seq)
+                seq = line.strip()
+                fout.write(seq)
 
 
 def select_genes_from_gbk_to_fasta(
