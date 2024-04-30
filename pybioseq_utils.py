@@ -61,9 +61,10 @@ class NucleicAcidSequence(BiologicalSequence, ABC):
         gc_content(): Calculates the GC content of the sequence.
     """
 
+    complement_pairs = {}
+
     def __init__(self, seq: str):
         self.seq = seq
-        self.complement_pairs = {}
 
     def __len__(self):
         return len(self.seq)
@@ -119,9 +120,10 @@ class RNASequence(NucleicAcidSequence, BiologicalSequence, ABC):
         __init__(): Initializes an RNA sequence.
     """
 
+    complement_pairs = {"A": "U", "U": "A", "C": "G", "G": "C"}
+
     def __init__(self, seq):
         super().__init__(seq)
-        self.complement_pairs = {"A": "U", "U": "A", "C": "G", "G": "C"}
 
 
 class DNASequence(NucleicAcidSequence, BiologicalSequence, ABC):
@@ -136,9 +138,10 @@ class DNASequence(NucleicAcidSequence, BiologicalSequence, ABC):
         transcribe(): Transcribes the DNA sequence into RNA.
     """
 
+    complement_pairs = {"A": "T", "T": "A", "C": "G", "G": "C"}
+
     def __init__(self, seq):
         super().__init__(seq)
-        self.complement_pairs = {"A": "T", "T": "A", "C": "G", "G": "C"}
 
     def transcribe(self):
         """
