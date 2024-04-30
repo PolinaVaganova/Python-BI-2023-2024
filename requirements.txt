@@ -1,0 +1,6 @@
+requests==2.31.0
+bio==1.7.0
+bs4==0.0.2
+numpy==1.26.0
+scikit-learn==1.4.2
+pytest==8.2.0
