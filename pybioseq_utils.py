@@ -1,11 +1,22 @@
 import datetime
+import io
 import os
+import re
+import sys
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import List, Optional
 from typing import Union
 
+import requests
 from Bio import SeqIO, SeqUtils
+from bs4 import BeautifulSoup
 
 
+# Utils for biological sequence analysis
+
+
+# Custom errors for sequences
 class NucleotideNotFoundError(ValueError):
     """
     Error raised when there is incorrect nucleotide in corresponding sequence.
@@ -22,6 +33,7 @@ class AminoAcidNotFoundError(ValueError):
     pass
 
 
+# Abstract cass for sequences
 class BiologicalSequence(ABC):
     @abstractmethod
     def __len__(self):
@@ -41,6 +53,7 @@ class BiologicalSequence(ABC):
         pass
 
 
+# Class for nucleic acids sequences
 class NucleicAcidSequence(BiologicalSequence, ABC):
     """
     Represents a nucleic acid sequence.
@@ -155,6 +168,7 @@ class DNASequence(NucleicAcidSequence, BiologicalSequence, ABC):
         return transcript
 
 
+# Class for amino acids sequences
 class AminoAcidSequence(BiologicalSequence, ABC):
     """
     Represents an amino acid sequence.
@@ -244,6 +258,7 @@ class AminoAcidSequence(BiologicalSequence, ABC):
         return residue_count
 
 
+# Function for fastaq files filtering
 def filter_fastq(
     input_path: str,
     output_filename: str = None,
@@ -308,3 +323,299 @@ def filter_fastq(
     SeqIO.write(
         filtered_seqs, os.path.join("fastq_filtrator_results", output_filename), "fastq"
     )
+
+
+# Telegram bot for logging
+def telegram_logger(chat_id: int):
+    """
+    Decorator function for logging messages to a Telegram chat.
+
+    Args:
+        chat_id (int): The ID of the Telegram chat to which the messages will be sent.
+
+    Returns:
+        function: Decorator function.
+    """
+
+    def decorator(func):
+        def inner_func(*args, **kwargs):
+            # Telegram bot token
+            bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
+            if bot_token is None:
+                print(
+                    "Telegram bot token is not set. Please set the TELEGRAM_BOT_TOKEN environment variable."
+                )
+                return
+
+            # Create a buffer to capture stdout and stderr
+            buffer_stdout = io.StringIO()
+            buffer_stderr = io.StringIO()
+            sys.stdout = buffer_stdout
+            sys.stderr = buffer_stderr
+
+            start_time = datetime.datetime.now()
+
+            func_name = func.__name__
+
+            try:
+                func(*args, **kwargs)
+            except Exception as error:
+                end_time = datetime.datetime.now()
+                # Construct error message
+                message = (
+                    f"ERROR in <code>{func_name}</code>:\n"
+                    f"<code>{repr(error)}</code>\n"
+                    f"Process execution time: {end_time - start_time}"
+                )
+                # Send message to Telegram
+                _send_telegram_message(
+                    bot_token, chat_id, message, buffer_stdout, buffer_stderr, func_name
+                )
+                # Propagate the exception
+                raise
+
+            else:
+                end_time = datetime.datetime.now()
+                # Construct success message
+                message = (
+                    f"Process <code>{func.__name__}</code> completed\n"
+                    f"Process execution time: {end_time - start_time}"
+                )
+                # Send message to Telegram
+                _send_telegram_message(
+                    bot_token, chat_id, message, buffer_stdout, buffer_stderr, func_name
+                )
+
+            finally:
+                # Restore stdout and stderr
+                sys.stdout = sys.__stdout__
+                sys.stderr = sys.__stderr__
+
+        return inner_func
+
+    return decorator
+
+
+def _send_telegram_message(
+    bot_token, chat_id, message, buffer_stdout, buffer_stderr, func_name
+):
+    """
+    Sends a message and log document to a Telegram chat.
+
+    Args:
+        bot_token (str): The Telegram bot token.
+        chat_id (int): The ID of the Telegram chat to which the message and log document will be sent.
+        message (str): The message content to be sent.
+        buffer_stdout (io.StringIO): The buffer containing stdout log information.
+        buffer_stderr (io.StringIO): The buffer containing stderr log information.
+        func_name (str): The name of the function associated with the message and log.
+
+    Returns:
+        None
+    """
+    # Send message to Telegram
+    requests.post(
+        f"https://api.telegram.org/bot{bot_token}/sendMessage",
+        data={"chat_id": chat_id, "text": message, "parse_mode": "HTML"},
+    )
+
+    # Send stdout log document to Telegram
+    stdout_log_name = f"log_{func_name}_stdout_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.log"
+    stdout_log = (stdout_log_name, buffer_stdout.getvalue())
+    requests.post(
+        f"https://api.telegram.org/bot{bot_token}/sendDocument",
+        data={"chat_id": chat_id},
+        files={"document": stdout_log},
+    )
+
+    # Send stderr log document to Telegram
+    stderr_log_name = f"log_{func_name}_stderr_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.log"
+    stderr_log = (stderr_log_name, buffer_stderr.getvalue())
+    requests.post(
+        f"https://api.telegram.org/bot{bot_token}/sendDocument",
+        data={"chat_id": chat_id},
+        files={"document": stderr_log},
+    )
+
+
+# Bioinformatics API for GenScan requests
+@dataclass
+class GenscanOutput:
+    """
+    Dataclass representing the output of the Genscan analysis.
+
+    Attributes:
+        status (str): The status code of the HTTP response.
+        cds_list (List[str]): List of predicted protein sequences.
+        intron_list (List[List[Any]]): List of intron coordinates.
+        exon_list (List[List[Any]]): List of exon coordinates.
+    """
+
+    status: str
+    cds_list: List[str]
+    intron_list: List[List[str]]
+    exon_list: List[List[str]]
+
+
+def extract_cds_list(results_text: str) -> List[str]:
+    """
+    Extracts predicted protein sequences from the Genscan results text.
+
+    Args:
+        results_text (str): Text containing Genscan results.
+
+    Returns:
+        List[str]: List of predicted protein sequences.
+    """
+    cds_list = re.findall(r"^>.+\n([\w\s\n]+)", results_text, flags=re.MULTILINE)
+    cds_list = [sequence.replace("\n", "") for sequence in cds_list]
+
+    return cds_list
+
+
+def extract_exon_list(results_text) -> List[List[str]]:
+    """
+    Extracts exon coordinates from the Genscan results text.
+
+    Args:
+        results_text (str): Text containing Genscan results.
+
+    Returns:
+        List[List[Any]]: List of exon coordinates.
+    """
+    exon_data = re.findall(
+        r"^(S\.\d+\s+\w+\s+[+-]\s+\d+\s+\d+|^\s*\d+\.\d+\s+\w+\s+[+-]\s+\d+\s+\d+)",
+        results_text,
+        flags=re.MULTILINE,
+    )
+
+    exon_list = []
+
+    for exon in exon_data:
+        if "Prom" not in exon and "PlyA" not in exon:
+            exon_description = exon.split()
+            gene_name = exon_description[0]
+            exon_strand = exon_description[2]
+            exon_start = exon_description[3]
+            exon_end = exon_description[4]
+            exon_list.append([gene_name, exon_strand, exon_start, exon_end])
+
+    return exon_list
+
+
+def extract_intron_list(exon_list: List[List[str]]) -> List[List[str]]:
+    """
+    Extracts intron coordinates from the list of exon coordinates.
+
+    Args:
+        exon_list (List[List[Any]]): List of exon coordinates.
+
+    Returns:
+        List[List[Any]]: List of intron coordinates.
+    """
+    intron_list = []
+    for idx in range(len(exon_list) - 1):
+
+        # take gene names for the pair of exons
+        curr_exon_gene_name = exon_list[idx][0].split(".")[0]
+        next_exon_gene_name = exon_list[idx + 1][0].split(".")[0]
+
+        # take strands for the pair of exons
+        curr_exon_strand = exon_list[idx][1]
+        next_exon_strand = exon_list[idx + 1][1]
+
+        # take exons in one gene on the same strand
+        if (curr_exon_gene_name == next_exon_gene_name) and (
+            curr_exon_strand == next_exon_strand
+        ):
+            # take full gene numbers of the exons pair and create intron name from it
+            curr_exon_num = exon_list[idx][0]
+            next_exon_num = exon_list[idx + 1][0]
+            intron_gene_num = f"{curr_exon_num} - {next_exon_num}"
+
+            # take same strand for intron
+            intron_strand = curr_exon_strand
+
+            # define intron start and end coordinates, based on strand direction
+            if curr_exon_strand == "+":
+
+                curr_exon_end = exon_list[idx][3]
+                intron_start = int(curr_exon_end) + 1
+
+                next_exon_start = exon_list[idx + 1][2]
+                intron_end = int(next_exon_start) - 1
+
+            else:
+
+                next_exon_end = exon_list[idx + 1][3]
+                intron_start = int(next_exon_end) + 1
+
+                curr_exon_start = exon_list[idx][2]
+                intron_end = int(curr_exon_start) - 1
+
+            # collect output
+            intron_list.append(
+                [intron_gene_num, intron_strand, intron_start, intron_end]
+            )
+
+    return intron_list
+
+
+def run_genscan(
+    sequence: Optional[str] = None,
+    sequence_file: Optional[str] = None,
+    organism: str = "Vertebrate",
+    exon_cutoff: float = 0.00,
+    sequence_name: str = "",
+) -> GenscanOutput:
+    """
+    Runs Genscan analysis.
+
+    Args:
+        sequence (Optional[str]): DNA sequence.
+        sequence_file (Optional[str]): Path to a file containing DNA sequence.
+        organism (str): Organism type for Genscan analysis.
+        exon_cutoff (float): Exon cutoff value.
+        sequence_name (str): Name of the DNA sequence.
+
+    Returns:
+        GenscanOutput: Object containing Genscan analysis results.
+    """
+    if sequence_file:
+        sequence = ""
+        if len(SeqIO.parse(sequence_file, "fasta")) > 1:
+            print(
+                "Your fasta file contains several records. Planning take first one for analysis."
+            )
+
+        for record in SeqIO.parse(sequence_file, "fasta")[:1]:
+            sequence += str(record.seq)
+
+    params = {
+        "-s": sequence,
+        "-o": organism,
+        "-e": exon_cutoff,
+        "-n": sequence_name,
+        "-p": "Predicted peptides only",
+    }
+
+    response = requests.post(
+        "http://hollywood.mit.edu/cgi-bin/genscanw_py.cgi", data=params
+    )
+
+    status = response.status_code
+
+    if status != 200:
+        raise Exception(
+            f"Error: Unable to connect to Genscan service. Status code: {response.status_code}"
+        )
+
+    html_content = response.content
+    soup = BeautifulSoup(html_content, "lxml")
+    results_text = soup.find("pre").text
+
+    cds_list = extract_cds_list(results_text)
+    exon_list = extract_exon_list(results_text)
+    intron_list = extract_intron_list(exon_list)
+
+    return GenscanOutput(status, cds_list, intron_list, exon_list)
