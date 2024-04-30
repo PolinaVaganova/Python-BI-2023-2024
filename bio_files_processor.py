@@ -191,7 +191,7 @@ def convert_multiline_fasta_to_oneline(
     input_fasta: str, output_fasta: str = None
 ) -> None:
     """
-    Creates FASTA file with oneline sequences based on given FASTA file with multiline sequences in the same directory.
+    Creates FASTA file with oneline sequences based on given FASTA file with multiline sequences.
     :param input_fasta: path to the multiline FASTA file (str)
     :param output_fasta: name of output oneline FASTA file (str)
     :return: None
@@ -204,11 +204,7 @@ def convert_multiline_fasta_to_oneline(
     if not output_fasta.endswith(".fasta"):
         output_fasta += ".fasta"
 
-    path_to_out_dir = os.path.dirname(input_fasta)
-
-    with open(input_fasta, "r") as fin, open(
-        os.path.join(path_to_out_dir, output_fasta)
-    ) as fout:
+    with open(input_fasta, "r") as fin, open(output_fasta) as fout:
         seq = ""
         for line in fin:
             if line.startswith(">"):
