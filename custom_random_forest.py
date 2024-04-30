@@ -1,3 +1,4 @@
+import os
 import random
 from multiprocessing import Pool
 
@@ -5,12 +6,14 @@ import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.tree import DecisionTreeClassifier
 
-SEED = 111
-
 
 class RandomForestClassifierCustom(BaseEstimator):
     def __init__(
-        self, n_estimators=10, max_depth=None, max_features=None, random_state=SEED
+        self,
+        n_estimators=10,
+        max_depth=None,
+        max_features=None,
+        random_state=os.getenv("SEED"),
     ):
         self.classes_ = None
         self.n_estimators = n_estimators
