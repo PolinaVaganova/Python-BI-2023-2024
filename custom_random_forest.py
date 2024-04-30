@@ -1,5 +1,3 @@
-import os
-import random
 from multiprocessing import Pool
 
 import numpy as np
@@ -13,7 +11,7 @@ class RandomForestClassifierCustom(BaseEstimator):
         n_estimators=10,
         max_depth=None,
         max_features=None,
-        random_state=os.getenv("SEED"),
+        random_state=111,
     ):
         self.classes_ = None
         self.n_estimators = n_estimators
@@ -31,11 +29,15 @@ class RandomForestClassifierCustom(BaseEstimator):
         results = []
 
         for i in range(self.n_estimators):
-            random.seed(self.random_state + i)
+            np.random.seed(self.random_state + i)
             features = np.random.choice(X.shape[1], self.max_features, replace=False)
             self.feat_ids_by_tree.append(features)
 
-            bootstrap_idx = np.random.choice(X.shape[0], size=X.shape[0], replace=True)
+            bootstrap_idx = np.random.choice(
+                X.shape[0],
+                size=X.shape[0],
+                replace=True,
+            )
 
             X_bagging = X[bootstrap_idx][:, features]
             y_bagging = y[bootstrap_idx]
