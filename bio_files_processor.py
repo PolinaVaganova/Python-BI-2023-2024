@@ -204,7 +204,7 @@ def convert_multiline_fasta_to_oneline(
     if not output_fasta.endswith(".fasta"):
         output_fasta += ".fasta"
 
-    with open(input_fasta, "r") as fin, open(output_fasta) as fout:
+    with open(input_fasta, "r") as fin, open(output_fasta, "w") as fout:
         seq = ""
         for line in fin:
             if line.startswith(">"):
