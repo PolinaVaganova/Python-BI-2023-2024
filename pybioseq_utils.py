@@ -119,7 +119,7 @@ class NucleicAcidSequence(BiologicalSequence, ABC):
         Calculate the GC content of the sequence as fraction (from 0 to 1).
         """
         self.check_seq_correctness()
-        return SeqUtils.GC(self.seq)
+        return SeqUtils.gc_fraction(self.seq)
 
 
 class RNASequence(NucleicAcidSequence, BiologicalSequence, ABC):
