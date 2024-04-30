@@ -1,7 +1,9 @@
+import datetime
 import os
-from typing import Union
-from Bio import SeqIO, SeqUtils
 from abc import ABC, abstractmethod
+from typing import Union
+
+from Bio import SeqIO, SeqUtils
 
 
 class NucleotideNotFoundError(ValueError):
@@ -293,6 +295,10 @@ def run_fastq_filtering(
             filtered_seqs.append(record)
 
     os.makedirs("fastq_filtrator_results", exist_ok=True)
+
+    # create filename if it is not given
+    if output_filename is None:
+        f"fasta_filtrator_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_out"
 
     SeqIO.write(
         filtered_seqs, os.path.join("fastq_filtrator_results", output_filename), "fastq"
