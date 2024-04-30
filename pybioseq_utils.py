@@ -36,8 +36,8 @@ class BiologicalSequence(ABC):
         """Return the string representation of the biological sequence."""
         pass
 
-    def is_correct(self):
-        """Check if the alphabet of the sequence is correct."""
+    def check_seq_correctness(self):
+        """Describe protein seq biological sequence correctness."""
         pass
 
 
@@ -56,7 +56,7 @@ class NucleicAcidSequence(BiologicalSequence, ABC):
         __len__(): Returns the length of the nucleic acid sequence.
         __getitem__(item): Returns the element or slice of the nucleic acid sequence.
         __str__(): Returns the string representation of the nucleic acid sequence.
-        is_correct(): Checks if the nucleic acid sequence contains valid nucleotides.
+        check_seq_correctness(): Check if the nucleic acid sequence contains valid nucleotides and raise error if not.
         complement(): Creates a complementary nucleic acid sequence.
         gc_content(): Calculates the GC content of the sequence.
     """
@@ -74,9 +74,9 @@ class NucleicAcidSequence(BiologicalSequence, ABC):
     def __str__(self):
         return str(self.seq)
 
-    def is_correct(self):
+    def check_seq_correctness(self):
         """
-        Check if seq dna/rna valid
+        Describe nucleic seq biological sequence correctness and raise error in invalid letters were provided.
         """
         for nucleotide in set(self.seq):
             if nucleotide.upper() not in self.complement_pairs.keys():
@@ -89,7 +89,7 @@ class NucleicAcidSequence(BiologicalSequence, ABC):
         """
         Create complementary nucleic acid sequence.
         """
-        self.is_correct()
+        self.check_seq_correctness()
         complement_seq = ""
 
         for nucleotide in self.seq:
@@ -104,7 +104,7 @@ class NucleicAcidSequence(BiologicalSequence, ABC):
         """
         Calculate the GC content of the sequence as fraction (from 0 to 1).
         """
-        self.is_correct()
+        self.check_seq_correctness()
         return SeqUtils.GC(self.seq)
 
 
@@ -164,11 +164,12 @@ class AminoAcidSequence(BiologicalSequence, ABC):
         code (int): The encoding format for the sequence (1 for one-letter and 3 for three-letter).
 
     Methods:
-        __len__(): Returns the length of the amino acid sequence.
-        __getitem__(index): Returns the amino acid at the specified index.
-        __str__(): Returns the string representation of the amino acid sequence.
-        is_correct(): Checks if the amino acid sequence contains valid amino acids.
-        count_aa(): Counts the occurrences of each amino acid in the sequence.
+    __len__(): Returns the length of the amino acid sequence. __getitem__(index): Returns the amino acid at
+    the specified index.
+    __str__(): Returns the string representation of the amino acid sequence.
+    check_seq_correctness(): Describe the amino acid sequence correctness and raise error in it contains invalid
+    letters.
+    count_aa(): Counts the occurrences of each amino acid in the sequence.
     """
 
     def __init__(self, seq: str, code: int = 1):
@@ -216,9 +217,10 @@ class AminoAcidSequence(BiologicalSequence, ABC):
     def __str__(self):
         return "".join(self.seq)
 
-    def is_correct(self):
+    def check_seq_correctness(self):
         """
-        Check if protein seq valid or not
+        Describe protein seq correctness
+        :return: seq description (str)
         """
         for residue in set(self.seq):
             if residue.upper() not in self.residues_names:
@@ -239,7 +241,7 @@ class AminoAcidSequence(BiologicalSequence, ABC):
         return residue_count
 
 
-def run_fastq_filtering(
+def filter_fastq(
     input_path: str,
     output_filename: str = None,
     gc_bounds: Union[tuple, float, int] = (0, 100),
